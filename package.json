@@ -1,0 +1,29 @@
+{
+  "name": "webp-file-loader",
+  "version": "0.1.0",
+  "description": "File Loader for images which produce original image and webp picture with same name",
+  "main": "index.js",
+  "scripts": {
+    "test": "webpack --config ./test/webpack.config.js"
+  },
+  "keywords": [
+    "webpack-loader",
+    "loader",
+    "file-loader",
+    "image-loader",
+    "webp"
+  ],
+  "author": "i.sergey.zhigunov@gmail.com",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^4.26.1",
+    "webpack-cli": "^3.1.2"
+  },
+  "dependencies": {
+    "loader-utils": "^1.1.0",
+    "schema-utils": "^1.0.0",
+    "imagemin": "^6.0.0",
+    "imagemin-webp": "^4.1.0",
+    "webp-loader": "^0.4.0"
+  }
+}
