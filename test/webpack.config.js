@@ -1,9 +1,9 @@
 var path = require('path');
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
   entry: './test/index.js',
-  target: 'node',
+  target: 'web',
   output: {
     path: path.resolve('./test/build'),
     filename: 'app.js'
@@ -15,11 +15,12 @@ module.exports = {
         use: [{
           loader: './index.js',
           options: {
+            publicPath: './assets/',
             /*
               https://github.com/imagemin/imagemin-webp#imageminwebpoptionsbuffer
             */
             webp: {
-              quality: 65
+              lossless: true
             },
             name: '[name].[hash:8].[ext]'
           }

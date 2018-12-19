@@ -7,7 +7,6 @@ var imageminWebp = require('imagemin-webp');
 
 var schema = require('./options.json');
 
-console.log(parse)
 module.exports = function loader(content) {
   if (!this.emitFile)
     throw new Error('File Loader\n\nemitFile is required from module system');
@@ -20,7 +19,9 @@ module.exports = function loader(content) {
   
   const resourceParams = new URLSearchParams(parse(this.resource).search)
 
-  console.log(resourceParams)
+  const returnWebP = resourceParams.has('webp')
+  const returnRaw = resourceParams.has('raw')
+
 
   const context =
     options.context ||
@@ -33,16 +34,18 @@ module.exports = function loader(content) {
     regExp: options.regExp,
   });
 
+  const webpUrl = path.basename(url, '.png') + '.webp';
+
   let outputPath = url;
-  let webpOutputPath = path.basename(url, '.png') + '.webp';
+  let webpOutputPath = webpUrl;
 
   if (options.outputPath) {
     if (typeof options.outputPath === 'function') {
       outputPath = options.outputPath(url);
-      webpOutputPath = options.outputPath(webpOutputPath);
+      webpOutputPath = options.outputPath(webpUrl);
     } else {
       outputPath = path.posix.join(options.outputPath, url);
-      webpOutputPath = path.posix.join(options.outputPath, webpOutputPath);
+      webpOutputPath = path.posix.join(options.outputPath, webpUrl);
     }
   }
 
@@ -64,25 +67,30 @@ module.exports = function loader(content) {
     // eslint-disable-next-line no-bitwise
     if (~relativePath.indexOf('../')) {
       outputPath = path.posix.join(outputPath, relativePath, url);
-      webpOutputPath = path.posix.join(outputPath, relativePath, webpOutputPath);
+      webpOutputPath = path.posix.join(outputPath, relativePath, webpUrl);
     } else {
       outputPath = path.posix.join(relativePath, url);
-      webpOutputPath = path.posix.join(relativePath, webpOutputPath);
+      webpOutputPath = path.posix.join(relativePath, webpUrl);
     }
   }
 
   let publicPath = `__webpack_public_path__ + ${JSON.stringify(outputPath)}`;
+  let webPublicPath = `__webpack_public_path__ + ${JSON.stringify(webpOutputPath)}`;
 
   if (options.publicPath) {
     if (typeof options.publicPath === 'function') {
       publicPath = options.publicPath(url);
+      webPublicPath = options.publicPath(webpUrl);
     } else if (options.publicPath.endsWith('/')) {
       publicPath = options.publicPath + url;
+      webPublicPath = options.publicPath + webpUrl;
     } else {
       publicPath = `${options.publicPath}/${url}`;
+      webPublicPath =`${options.publicPath}/${webpUrl}`;
     }
 
     publicPath = JSON.stringify(publicPath);
+    webPublicPath = JSON.stringify(webPublicPath);
   }
 
   // eslint-disable-next-line no-undefined
@@ -90,11 +98,18 @@ module.exports = function loader(content) {
     this.emitFile(outputPath, content);
     imagemin
       .buffer(content,{
-        plugins: imageminWebp(options.webp || { quality: 65 })
+        plugins: imageminWebp(options.webp || { lossless: true })
       })
       .then((data) => {
         this.emitFile(webpOutputPath, data);
-        callback(null, `module.exports = ${publicPath};`);
+
+        if (returnWebP) {
+          callback(null, `module.exports = ${webPublicPath};`);
+        } else if(returnRaw) {
+          callback(null, `module.exports = ${publicPath};`);
+        } else {
+          callback(null, `module.exports = { srcPath: ${publicPath}, webpPath: ${webPublicPath} };`);
+        }
       })
       .catch(function(err){
         callback(err);

@@ -4,7 +4,8 @@
   "description": "File Loader for images which produce original image and webp picture with same name",
   "main": "index.js",
   "scripts": {
-    "test": "webpack --config ./test/webpack.config.js"
+    "build:test": "webpack --config ./test/webpack.config.js",
+    "test": "npm run-script build:test && jest"
   },
   "keywords": [
     "webpack-loader",
@@ -16,14 +17,14 @@
   "author": "i.sergey.zhigunov@gmail.com",
   "license": "ISC",
   "devDependencies": {
+    "jest": "^23.6.0",
     "webpack": "^4.26.1",
     "webpack-cli": "^3.1.2"
   },
   "dependencies": {
-    "loader-utils": "^1.1.0",
-    "schema-utils": "^1.0.0",
     "imagemin": "^6.0.0",
-    "imagemin-webp": "^4.1.0",
-    "webp-loader": "^0.4.0"
+    "imagemin-webp": "^5.0.0",
+    "loader-utils": "^1.1.0",
+    "schema-utils": "^1.0.0"
   }
 }
